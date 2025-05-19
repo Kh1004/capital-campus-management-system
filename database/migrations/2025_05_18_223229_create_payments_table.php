@@ -14,12 +14,15 @@ return new class extends Migration
     public function up()
     {
         Schema::create('payments', function (Blueprint $table) {
-            $table->id('payment_id');
-            $table->unsignedBigInteger('student_id');
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('course_id');
+            $table->foreign('course_id')->references('course_id')->on('courses')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
-            $table->enum('payment_method', ['cash', 'card', 'bank']);
-            $table->enum('payment_status', ['completed', 'pending', 'failed']);
-            $table->date('date');
+            $table->string('transaction_id')->unique();
+            $table->string('payment_method')->default('dummy');
+            $table->enum('status', ['pending', 'completed', 'failed'])->default('pending');
+            $table->json('payment_details')->nullable();
             $table->timestamps();
         });
     }

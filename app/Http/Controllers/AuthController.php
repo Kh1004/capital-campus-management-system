@@ -3,42 +3,107 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Admin;
-use App\Models\Instructor;
-use App\Models\Staff;
-use App\Models\Student;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class AuthController extends Controller
 {
+    /**
+     * Handle a login request to the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function login(Request $request)
     {
-        $email = $request->email;
-        $password = $request->password;
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-        // Admin
-        $admin = Admin::where('email', $email)->first();
-        if ($admin && Hash::check($password, $admin->password)) {
-            return response()->json(['success' => true, 'role' => 'admin', 'user' => $admin]);
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            
+            $user = Auth::user();
+            
+            if ($user->isAdmin()) {
+                return redirect()->route('admin.dashboard');
+            } elseif ($user->isStudent()) {
+                return redirect()->route('student.dashboard');
+            }
+            
+            // Default redirect for other roles if any
+            return redirect()->route('welcome');
         }
 
-        // Instructor
-        $instructor = Instructor::where('email', $email)->first();
-        if ($instructor && Hash::check($password, $instructor->password)) {
-            return response()->json(['success' => true, 'role' => 'instructor', 'user' => $instructor]);
-        }
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->onlyInput('email');
+    }
 
-        // Staff
-        $staff = Staff::where('email', $email)->first();
-        if ($staff && Hash::check($password, $staff->password)) {
-            return response()->json(['success' => true, 'role' => 'staff', 'user' => $staff]);
-        }
+    /**
+     * Show the application login form.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showLoginForm()
+    {  
+        return view('auth.login');
+    }
 
-        // Student
-        $student = Student::where('email', $email)->first();
-        if ($student && Hash::check($password, $student->password)) {
-            return response()->json(['success' => true, 'role' => 'student', 'user' => $student]);
-        }
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        return response()->json(['success' => false, 'message' => 'Invalid credentials'], 401);
+        return redirect('/');
+    }
+
+    /**
+     * Show the application registration form.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function showRegistrationForm()
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Handle a registration request for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'address' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'phone' => $validated['phone'] ?? null,
+            'address' => $validated['address'] ?? null,
+            'role' => 'student', // Default role for new registrations
+        ]);
+
+        Auth::login($user);
+
+        return redirect()->route('student.dashboard')
+            ->with('success', 'Registration successful! Welcome to CCMS.');
     }
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -14,7 +14,15 @@ function Login() {
       const res = await axios.post('/api/login', { email, password });
       if (res.data.success) {
         const role = res.data.role.toLowerCase();
-        navigate(`/dashboard/${role}`);
+        
+        // Redirect based on user role
+        if (role === 'admin') {
+          window.location.href = '/admin/dashboard';
+        } else if (role === 'student') {
+          window.location.href = '/student/dashboard';
+        } else {
+          navigate(`/dashboard/${role}`);
+        }
       } else {
         setError('Login failed');
       }
@@ -27,7 +35,7 @@ function Login() {
     <div className="d-flex justify-content-center align-items-center min-vh-100" style={{ backgroundColor: '#e7ecf8' }}>
       <div className="card shadow p-4" style={{ width: '100%', maxWidth: '400px', borderRadius: '20px' }}>
         <div className="text-center mb-4">
-          <img src="./public/images/image.png" alt="Logo" style={{ maxHeight: '100px' }} />
+          <img src="/images/image.png" alt="Logo" style={{ maxHeight: '100px' }} />
         </div>
 
         <form onSubmit={handleLogin}>
@@ -59,8 +67,8 @@ function Login() {
 
           <button type="submit" className="btn btn-primary w-100 rounded-pill fw-semibold">Login</button>
           <div className="d-flex justify-content-between mt-3">
-            <a href="#">Signup</a>
-            <a href="#">Forgot Password?</a>
+            <Link to="/signup">Signup</Link>
+            <Link to="#">Forgot Password?</Link>
           </div>
         </form>
       </div>

@@ -19,11 +19,11 @@ return new class extends Migration
             $table->string('course_type');
             $table->text('description')->nullable();
             $table->decimal('course_fee', 10, 2);
-            $table->integer('course_duration');
+            $table->string('course_duration');
             $table->date('start_date');
             $table->date('end_date');
-            $table->string('email')->nullable();
-            $table->unsignedBigInteger('academic_calender_id')->nullable();
+            $table->string('email');
+            $table->foreignId('academic_calender_id')->nullable();
             $table->timestamps();
         });
     }

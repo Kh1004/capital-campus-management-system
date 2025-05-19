@@ -26,6 +26,13 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        parent::boot();
+
+        // Explicit route model binding for Course model using UUID
+        Route::bind('course', function ($value) {
+            return \App\Models\Course::where('course_id', $value)->firstOrFail();
+        });
+
         $this->configureRateLimiting();
 
         $this->routes(function () {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function SignUp() {
   const [fullName, setFullName] = useState('');
@@ -58,7 +58,7 @@ function SignUp() {
     <div className="d-flex justify-content-center align-items-center min-vh-100" style={{ backgroundColor: '#e7ecf8' }}>
       <div className="card shadow p-4" style={{ width: '100%', maxWidth: '500px', borderRadius: '20px' }}>
         <div className="text-center mb-4">
-          <img src="../public/images/image.png" alt="Logo" style={{ maxHeight: '100px' }} />
+          <img src="/images/image.png" alt="Logo" style={{ maxHeight: '100px' }} />
         </div>
 
         <form onSubmit={handleSignUp}>
@@ -181,7 +181,7 @@ function SignUp() {
 
           <button type="submit" className="btn btn-primary w-100 rounded-pill fw-semibold">Sign Up</button>
           <div className="d-flex justify-content-between mt-3">
-            <a href="/login">Already have an account? Login</a>
+            <Link to="/login">Already have an account? Login</Link>
           </div>
         </form>
       </div>

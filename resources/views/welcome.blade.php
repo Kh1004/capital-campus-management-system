@@ -7,7 +7,8 @@
 
     <!-- Fonts -->
     <link href="https://fonts.bunny.net/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM8z4+2e5j7x1l5Z5e5f5e5f5e5f5e5f5e5f5" crossorigin="anonymous">
+    
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-k6RqeWeci5ZR/Lv4MR0sA0FfDOM8z4+2e5j7x1l5Z5e5f5e5f5e5f5e5f5e5f5" crossorigin="anonymous">
     
     <!-- CSS using Vite + traditional -->
     @vite(['resources/css/app.css']) <!-- If using Vite compilation -->
@@ -29,7 +30,6 @@
 
 </head>
 <body class="antialiased">
-viteReactRefresh
 @vite('resources/js/main.jsx')
     
 <header>
@@ -42,7 +42,9 @@ viteReactRefresh
               <div class="full">
                 <div class="center-desk">
                   <div class="logo">
-                    <a href="index.html"><img src="images/logo.png" alt="#" /></a>
+                    <a href="{{ url('/') }}">
+                        <img src="{{ asset(config('app_settings.logo')) }}" alt="{{ config('app_settings.logo_alt') }}" />
+                    </a>
                   </div>
                 </div>
               </div>
@@ -64,7 +66,17 @@ viteReactRefresh
                  </div>
                </div> 
                <div class="mean-last">
-               <a href="/login">Login / Sign up</a>
+                   @auth
+                       @if(auth()->user()->isAdmin())
+                           <a href="{{ route('admin.dashboard') }}">Dashboard</a>
+                       @elseif(auth()->user()->isStudent())
+                           <a href="{{ route('student.dashboard') }}">Dashboard</a>
+                       @else
+                           <a href="{{ route('welcome') }}">Dashboard</a>
+                       @endif
+                   @else
+                       <a href="{{ route('login') }}">Login / Sign up</a>
+                   @endauth
                </div>              
              </div>
            </div>
@@ -497,7 +509,3 @@ viteReactRefresh
     <script src="{{ asset('js/bootstrap.js') }}"></script>
     <script src="{{ asset('js/jquery.min.js') }}"></script>
 
-    <!-- Optional: Vite-compiled JS -->
-    @vite(['resources/js/app.js'])
-</body>
-</html>

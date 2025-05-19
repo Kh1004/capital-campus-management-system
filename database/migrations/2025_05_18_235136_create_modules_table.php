@@ -13,13 +13,20 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('academic_calenders', function (Blueprint $table) {
-            $table->id('calender_id');
-            $table->string('event_name');
-            $table->date('event_date');
+        Schema::create('modules', function (Blueprint $table) {
+            $table->id('module_id');
             $table->unsignedBigInteger('course_id');
+            $table->string('title');
             $table->text('description')->nullable();
+            $table->integer('order')->default(0);
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
+            
+            // Foreign key constraint
+            $table->foreign('course_id')
+                  ->references('course_id')
+                  ->on('courses')
+                  ->onDelete('cascade');
         });
     }
 
@@ -30,6 +37,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('academic_calenders');
+        Schema::dropIfExists('modules');
     }
 };
